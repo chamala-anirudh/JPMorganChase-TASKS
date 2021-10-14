@@ -1,0 +1,312 @@
+From f9fd997825e0b64840bb8ce0b2edee987fae4ae4 Mon Sep 17 00:00:00 2001
+From: Anirudh Chamala <anirudhchamala1856@gmail.com>
+Date: Thu, 14 Oct 2021 14:29:47 +0530
+Subject: [PATCH] Create Patch File
+
+---
+ src/App.css            | 44 ++++++++++++++++++++++++-----
+ src/App.tsx            | 31 ++++++++++++---------
+ src/DataManipulator.ts | 42 +++++++++++++++++++---------
+ src/Graph.css          |  4 +--
+ src/Graph.tsx          | 63 +++++++++++++++++++++++++-----------------
+ 5 files changed, 123 insertions(+), 61 deletions(-)
+
+diff --git a/src/App.css b/src/App.css
+index 1a8747a..3344616 100755
+--- a/src/App.css
++++ b/src/App.css
+@@ -13,12 +13,18 @@
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+-  font-size: calc(10px + 2vmin);
+-  margin-bottom: 12px;
++  font-size: calc(10px + 3vmin);
++  margin: 1rem 0;
++}
++
++.App-header-title {
++  display: inline;
++  text-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.8);
++  padding: 1rem;
+ }
+ 
+ .App-link {
+-  color: #61dafb;
++  color: rgb(97, 218, 251);
+ }
+ 
+ .App-content {
+@@ -26,17 +32,41 @@
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+-  margin-bottom: 12px;
++  margin-bottom: 3rem;
++}
++
++.btn.Stream-button {
++  background-color: rgba(97, 218, 251);
++  font-size: 1rem;
++  padding: 1rem 2rem;
++  border-radius: 2rem;
++  margin-bottom: 3rem;
++  text-shadow: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.8);
++  box-shadow: 0 0.6rem 1rem rgba(97, 218, 251, 0.7);
++  letter-spacing: 1px;
++  transition: all 0.5s;
++}
++
++.btn.Stream-button:hover {
++  background-color: rgb(74, 143, 223);
++  transform: translateY(-5px);
++  color: #fff;
++  text-shadow: 0 0.4rem 01rem rgba(0, 0, 0, 0.8);
++  box-shadow: 0 1.5rem 2.3rem rgba(74, 143, 223, 0.9);
+ }
+ 
+-.Stream-button {
+-  margin-bottom: 12px;
++.btn.Stream-button:active {
++  background-color: rgb(74, 143, 223);
++  transform: translateY(-2px);
++  color: #fff;
++  text-shadow: 0 0.4rem 01rem rgba(0, 0, 0, 0.8);
++  box-shadow: 0 0.9rem 1.5rem rgba(74, 143, 223, 0.9);
+ }
+ 
+ .Graph {
+   min-height: 50vh;
+   width: 700px;
+-  margin-bottom: 12px;
++  margin-bottom: 2.5rem;
+ }
+ 
+ @keyframes App-logo-spin {
+diff --git a/src/App.tsx b/src/App.tsx
+index 274d20b..8a6e0d5 100755
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -1,11 +1,11 @@
+-import React, { Component } from 'react';
+-import DataStreamer, { ServerRespond } from './DataStreamer';
+-import Graph from './Graph';
+-import './App.css';
++import React, { Component } from "react";
++import DataStreamer, { ServerRespond } from "./DataStreamer";
++import Graph from "./Graph";
++import "./App.css";
+ 
+ interface IState {
+-  data: ServerRespond[],
+-  showGraph: boolean,
++  data: ServerRespond[];
++  showGraph: boolean;
+ }
+ 
+ class App extends Component<{}, IState> {
+@@ -19,7 +19,7 @@ class App extends Component<{}, IState> {
+ 
+   renderGraph() {
+     if (this.state.showGraph) {
+-      return (<Graph data={this.state.data}/>)
++      return <Graph data={this.state.data} />;
+     }
+   }
+ 
+@@ -43,16 +43,21 @@ class App extends Component<{}, IState> {
+     return (
+       <div className="App">
+         <header className="App-header">
+-          Bank Merge & Co Task 3
++          <h1 className="App-header-title">Bank Merge & Co Task 3</h1>
+         </header>
+         <div className="App-content">
+-          <button className="btn btn-primary Stream-button" onClick={() => {this.getDataFromServer()}}>Start Streaming Data</button>
+-          <div className="Graph">
+-            {this.renderGraph()}
+-          </div>
++          <button
++            className="btn Stream-button"
++            onClick={() => {
++              this.getDataFromServer();
++            }}
++          >
++            Start Streaming Data
++          </button>
++          <div className="Graph">{this.renderGraph()}</div>
+         </div>
+       </div>
+-    )
++    );
+   }
+ }
+ 
+diff --git a/src/DataManipulator.ts b/src/DataManipulator.ts
+index f6b15ff..c8eb187 100644
+--- a/src/DataManipulator.ts
++++ b/src/DataManipulator.ts
+@@ -1,20 +1,36 @@
+-import { ServerRespond } from './DataStreamer';
++import { ServerRespond } from "./DataStreamer";
+ 
+ export interface Row {
+-  stock: string,
+-  top_ask_price: number,
+-  timestamp: Date,
++  price_abc: number;
++  price_def: number;
++  ratio: number;
++  timestamp: Date;
++  upper_bound: number;
++  lower_bound: number;
++  trigger_alert: number | undefined;
+ }
+ 
+-
+ export class DataManipulator {
+-  static generateRow(serverResponds: ServerRespond[]): Row[] {
+-    return serverResponds.map((el: any) => {
+-      return {
+-        stock: el.stock,
+-        top_ask_price: el.top_ask && el.top_ask.price || 0,
+-        timestamp: el.timestamp,
+-      };
+-    })
++  static generateRow(serverRespond: ServerRespond[]): Row {
++    const priceABC =
++      (serverRespond[0].top_ask.price + serverRespond[0].top_bid.price) / 2;
++    const priceDEF =
++      (serverRespond[1].top_ask.price + serverRespond[1].top_bid.price) / 2;
++    const ratio = priceABC / priceDEF;
++    const upperBound = 1 + 0.03;
++    const lowerBound = 1 - 0.03;
++    return {
++      price_abc: priceABC,
++      price_def: priceDEF,
++      ratio,
++      timestamp:
++        serverRespond[0].timestamp > serverRespond[1].timestamp
++          ? serverRespond[0].timestamp
++          : serverRespond[1].timestamp,
++      upper_bound: upperBound,
++      lower_bound: lowerBound,
++      trigger_alert:
++        ratio > upperBound || ratio < lowerBound ? ratio : undefined,
++    };
+   }
+ }
+diff --git a/src/Graph.css b/src/Graph.css
+index c77c560..462c74a 100644
+--- a/src/Graph.css
++++ b/src/Graph.css
+@@ -1,4 +1,4 @@
+ perspective-viewer {
+   height: 50vh;
+-  width: 700px;
+-}
+\ No newline at end of file
++  width: 45em;
++}
+diff --git a/src/Graph.tsx b/src/Graph.tsx
+index 58fb997..dc9f408 100644
+--- a/src/Graph.tsx
++++ b/src/Graph.tsx
+@@ -1,32 +1,37 @@
+-import React, { Component } from 'react';
+-import { Table } from '@jpmorganchase/perspective';
+-import { ServerRespond } from './DataStreamer';
+-import { DataManipulator } from './DataManipulator';
+-import './Graph.css';
++import React, { Component } from "react";
++import { Table } from "@jpmorganchase/perspective";
++import { ServerRespond } from "./DataStreamer";
++import { DataManipulator } from "./DataManipulator";
++import "./Graph.css";
+ 
+ interface IProps {
+-  data: ServerRespond[],
++  data: ServerRespond[];
+ }
+ 
+ interface PerspectiveViewerElement extends HTMLElement {
+-  load: (table: Table) => void,
++  load: (table: Table) => void;
+ }
+ class Graph extends Component<IProps, {}> {
+   table: Table | undefined;
+ 
+   render() {
+-    return React.createElement('perspective-viewer');
++    return React.createElement("perspective-viewer");
+   }
+ 
+   componentDidMount() {
+     // Get element from the DOM.
+-    const elem = document.getElementsByTagName('perspective-viewer')[0] as unknown as PerspectiveViewerElement;
++    const elem = (document.getElementsByTagName(
++      "perspective-viewer"
++    )[0] as unknown) as PerspectiveViewerElement;
+ 
+     const schema = {
+-      stock: 'string',
+-      top_ask_price: 'float',
+-      top_bid_price: 'float',
+-      timestamp: 'date',
++      price_abc: "float",
++      price_def: "float",
++      ratio: "float",
++      timestamp: "date",
++      upper_bound: "float",
++      lower_bound: "float",
++      trigger_alert: "float",
+     };
+ 
+     if (window.perspective && window.perspective.worker()) {
+@@ -35,24 +40,30 @@ class Graph extends Component<IProps, {}> {
+     if (this.table) {
+       // Load the `table` in the `<perspective-viewer>` DOM reference.
+       elem.load(this.table);
+-      elem.setAttribute('view', 'y_line');
+-      elem.setAttribute('column-pivots', '["stock"]');
+-      elem.setAttribute('row-pivots', '["timestamp"]');
+-      elem.setAttribute('columns', '["top_ask_price"]');
+-      elem.setAttribute('aggregates', JSON.stringify({
+-        stock: 'distinctcount',
+-        top_ask_price: 'avg',
+-        top_bid_price: 'avg',
+-        timestamp: 'distinct count',
+-      }));
++      elem.setAttribute("view", "y_line");
++      elem.setAttribute("row-pivots", '["timestamp"]');
++      elem.setAttribute(
++        "columns",
++        '["ratio", "lower_bound", "upper_bound", "trigger_alert"]'
++      );
++      elem.setAttribute(
++        "aggregates",
++        JSON.stringify({
++          price_abc: "avg",
++          price_def: "avg",
++          ratio: "avg",
++          timestamp: "distinct count",
++          upper_bound: "avg",
++          lower_bound: "avg",
++          trigger_alert: "avg",
++        })
++      );
+     }
+   }
+ 
+   componentDidUpdate() {
+     if (this.table) {
+-      this.table.update(
+-        DataManipulator.generateRow(this.props.data),
+-      );
++      this.table.update([DataManipulator.generateRow(this.props.data)]);
+     }
+   }
+ }
+-- 
+2.33.0.windows.2
+

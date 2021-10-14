@@ -1,0 +1,79 @@
+.App {
+  text-align: center;
+  min-height: 100vh;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 40vmin;
+}
+
+.App-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 3vmin);
+  margin: 1rem 0;
+}
+
+.App-header-title {
+  display: inline;
+  text-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.8);
+  padding: 1rem;
+}
+
+.App-link {
+  color: rgb(97, 218, 251);
+}
+
+.App-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 3rem;
+}
+
+.btn.Stream-button {
+  background-color: rgba(97, 218, 251);
+  font-size: 1rem;
+  padding: 1rem 2rem;
+  border-radius: 2rem;
+  margin-bottom: 3rem;
+  text-shadow: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0.6rem 1rem rgba(97, 218, 251, 0.7);
+  letter-spacing: 1px;
+  transition: all 0.5s;
+}
+
+.btn.Stream-button:hover {
+  background-color: rgb(74, 143, 223);
+  transform: translateY(-5px);
+  color: #fff;
+  text-shadow: 0 0.4rem 01rem rgba(0, 0, 0, 0.8);
+  box-shadow: 0 1.5rem 2.3rem rgba(74, 143, 223, 0.9);
+}
+
+.btn.Stream-button:active {
+  background-color: rgb(74, 143, 223);
+  transform: translateY(-2px);
+  color: #fff;
+  text-shadow: 0 0.4rem 01rem rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0.9rem 1.5rem rgba(74, 143, 223, 0.9);
+}
+
+.Graph {
+  min-height: 50vh;
+  width: 700px;
+  margin-bottom: 2.5rem;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

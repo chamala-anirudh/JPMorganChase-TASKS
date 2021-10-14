@@ -1,0 +1,273 @@
+From bf36d5b1a49e5f81a0869408060c6ebd74f8a653 Mon Sep 17 00:00:00 2001
+From: Anirudh Chamala <anirudhchamala1856@gmail.com>
+Date: Wed, 13 Oct 2021 23:31:06 +0530
+Subject: [PATCH] Create Patch File
+
+---
+ src/App.css   | 25 ++++++++++++++++++----
+ src/App.tsx   | 52 ++++++++++++++++++++++++++++-----------------
+ src/Graph.tsx | 59 ++++++++++++++++++++++++++++++++-------------------
+ 3 files changed, 90 insertions(+), 46 deletions(-)
+
+diff --git a/src/App.css b/src/App.css
+index 1a8747a..fb3ad54 100755
+--- a/src/App.css
++++ b/src/App.css
+@@ -14,11 +14,11 @@
+   align-items: center;
+   justify-content: center;
+   font-size: calc(10px + 2vmin);
+-  margin-bottom: 12px;
++  margin: 20px 0;
+ }
+ 
+ .App-link {
+-  color: #61dafb;
++  color: rgb(97, 218, 251);
+ }
+ 
+ .App-content {
+@@ -29,14 +29,31 @@
+   margin-bottom: 12px;
+ }
+ 
++.btn-primary.Stream-button {
++  transition: all 0.3s;
++}
++
+ .Stream-button {
+-  margin-bottom: 12px;
++  margin-bottom: 20px;
++}
++
++/* Added Hover Effect to the button*/
++.btn-primary.Stream-button:hover {
++  transform: translateY(-3px);
++  margin-bottom: 20px;
++  box-shadow: 0 1rem 2rem rgba(97, 218, 251, 0.8);
++}
++
++.btn.btn-primary.Stream-button:active {
++  transform: translateY(-2px);
++  margin-bottom: 20px;
++  box-shadow: 0 0.5rem 1.5rem rgba(97, 218, 251, 0.8);
+ }
+ 
+ .Graph {
+   min-height: 50vh;
+   width: 700px;
+-  margin-bottom: 12px;
++  margin-bottom: 20px;
+ }
+ 
+ @keyframes App-logo-spin {
+diff --git a/src/App.tsx b/src/App.tsx
+index 0728518..11899c6 100755
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -1,13 +1,14 @@
+-import React, { Component } from 'react';
+-import DataStreamer, { ServerRespond } from './DataStreamer';
+-import Graph from './Graph';
+-import './App.css';
++import React, { Component } from "react";
++import DataStreamer, { ServerRespond } from "./DataStreamer";
++import Graph from "./Graph";
++import "./App.css";
+ 
+ /**
+  * State declaration for <App />
+  */
+ interface IState {
+-  data: ServerRespond[],
++  data: ServerRespond[];
++  showGraph: boolean;
+ }
+ 
+ /**
+@@ -22,6 +23,7 @@ class App extends Component<{}, IState> {
+       // data saves the server responds.
+       // We use this state to parse data down to the child element (Graph) as element property
+       data: [],
++      showGraph: false,
+     };
+   }
+ 
+@@ -29,18 +31,28 @@ class App extends Component<{}, IState> {
+    * Render Graph react component with state.data parse as property data
+    */
+   renderGraph() {
+-    return (<Graph data={this.state.data}/>)
++    if (this.state.showGraph) {
++      return <Graph data={this.state.data} />;
++    }
+   }
+ 
+   /**
+    * Get new data from server and update the state with the new data
+    */
+   getDataFromServer() {
+-    DataStreamer.getData((serverResponds: ServerRespond[]) => {
+-      // Update the state by creating a new array of data that consists of
+-      // Previous data in the state and the new data from server
+-      this.setState({ data: [...this.state.data, ...serverResponds] });
+-    });
++    let x = 0;
++    const interval = setInterval(() => {
++      DataStreamer.getData((serverResponds: ServerRespond[]) => {
++        this.setState({
++          data: serverResponds,
++          showGraph: true,
++        });
++      });
++      x++;
++      if (x > 1000) {
++        clearInterval(interval);
++      }
++    }, 100);
+   }
+ 
+   /**
+@@ -49,25 +61,25 @@ class App extends Component<{}, IState> {
+   render() {
+     return (
+       <div className="App">
+-        <header className="App-header">
+-          Bank & Merge Co Task 2
+-        </header>
++        <header className="App-header">Bank & Merge Co Task 2</header>
+         <div className="App-content">
+-          <button className="btn btn-primary Stream-button"
++          <button
++            className="btn btn-primary Stream-button"
+             // when button is click, our react app tries to request
+             // new data from the server.
+             // As part of your task, update the getDataFromServer() function
+             // to keep requesting the data every 100ms until the app is closed
+             // or the server does not return anymore data.
+-            onClick={() => {this.getDataFromServer()}}>
++            onClick={() => {
++              this.getDataFromServer();
++            }}
++          >
+             Start Streaming Data
+           </button>
+-          <div className="Graph">
+-            {this.renderGraph()}
+-          </div>
++          <div className="Graph">{this.renderGraph()}</div>
+         </div>
+       </div>
+-    )
++    );
+   }
+ }
+ 
+diff --git a/src/Graph.tsx b/src/Graph.tsx
+index ec1430e..cac1263 100644
+--- a/src/Graph.tsx
++++ b/src/Graph.tsx
+@@ -1,21 +1,21 @@
+-import React, { Component } from 'react';
+-import { Table } from '@jpmorganchase/perspective';
+-import { ServerRespond } from './DataStreamer';
+-import './Graph.css';
++import React, { Component } from "react";
++import { Table } from "@jpmorganchase/perspective";
++import { ServerRespond } from "./DataStreamer";
++import "./Graph.css";
+ 
+ /**
+  * Props declaration for <Graph />
+  */
+ interface IProps {
+-  data: ServerRespond[],
++  data: ServerRespond[];
+ }
+ 
+ /**
+  * Perspective library adds load to HTMLElement prototype.
+  * This interface acts as a wrapper for Typescript compiler.
+  */
+-interface PerspectiveViewerElement {
+-  load: (table: Table) => void,
++interface PerspectiveViewerElement extends HTMLElement {
++  load: (table: Table) => void;
+ }
+ 
+ /**
+@@ -27,18 +27,20 @@ class Graph extends Component<IProps, {}> {
+   table: Table | undefined;
+ 
+   render() {
+-    return React.createElement('perspective-viewer');
++    return React.createElement("perspective-viewer");
+   }
+ 
+   componentDidMount() {
+     // Get element to attach the table from the DOM.
+-    const elem: PerspectiveViewerElement = document.getElementsByTagName('perspective-viewer')[0] as unknown as PerspectiveViewerElement;
++    const elem = (document.getElementsByTagName(
++      "perspective-viewer"
++    )[0] as unknown) as PerspectiveViewerElement;
+ 
+     const schema = {
+-      stock: 'string',
+-      top_ask_price: 'float',
+-      top_bid_price: 'float',
+-      timestamp: 'date',
++      stock: "string",
++      top_ask_price: "float",
++      top_bid_price: "float",
++      timestamp: "date",
+     };
+ 
+     if (window.perspective && window.perspective.worker()) {
+@@ -49,6 +51,17 @@ class Graph extends Component<IProps, {}> {
+ 
+       // Add more Perspective configurations here.
+       elem.load(this.table);
++      elem.setAttribute("view", "y_line");
++      elem.setAttribute("column-pivots", '["stock"]');
++      elem.setAttribute("row-pivots", '["timestamp"]');
++      elem.setAttribute("columns", '["top_ask_price"]');
++      elem.setAttribute(
++        "aggregates",
++        `{"stock": "distinct count",
++         "top_ask_price": "avg",
++         "top_bid_price": "avg", 
++         "timestamp": "distinct count"}`
++      );
+     }
+   }
+ 
+@@ -57,15 +70,17 @@ class Graph extends Component<IProps, {}> {
+     if (this.table) {
+       // As part of the task, you need to fix the way we update the data props to
+       // avoid inserting duplicated entries into Perspective table again.
+-      this.table.update(this.props.data.map((el: any) => {
+-        // Format the data from ServerRespond to the schema
+-        return {
+-          stock: el.stock,
+-          top_ask_price: el.top_ask && el.top_ask.price || 0,
+-          top_bid_price: el.top_bid && el.top_bid.price || 0,
+-          timestamp: el.timestamp,
+-        };
+-      }));
++      this.table.update(
++        this.props.data.map((el: any) => {
++          // Format the data from ServerRespond to the schema
++          return {
++            stock: el.stock,
++            top_ask_price: (el.top_ask && el.top_ask.price) || 0,
++            top_bid_price: (el.top_bid && el.top_bid.price) || 0,
++            timestamp: el.timestamp,
++          };
++        })
++      );
+     }
+   }
+ }
+-- 
+2.33.0.windows.2
+
